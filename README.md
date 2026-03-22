@@ -1,0 +1,218 @@
+# AI Forge
+
+**Five open-source AI developer tools, unified into one setup and one web dashboard. All local. Zero API costs.**
+
+AI Forge combines [The Agency](https://github.com/msitarzewski/agency-agents), [Impeccable](https://github.com/pbakaus/impeccable), [PromptFoo](https://github.com/promptfoo/promptfoo), MiniFish (a lightweight local version of [MiroFish](https://github.com/666ghj/MiroFish)), and [OpenViking](https://github.com/volcengine/OpenViking) into a single `setup.sh` that configures your entire AI development environment in under a minute.
+
+Everything runs on your Mac via Ollama. No cloud APIs required.
+
+## Quick start
+
+```bash
+git clone https://github.com/kpulik/ai-forge.git
+cd ai-forge
+./setup.sh          # installs all 5 tools
+python forge.py     # launches the web dashboard
+# Open http://localhost:8000
+```
+
+Make sure Ollama is running first:
+
+```bash
+brew install ollama
+ollama serve
+ollama pull llama3.1:8b   # or any model you prefer
+```
+
+For everything including OpenViking agent memory:
+
+```bash
+./setup.sh --full --ollama
+```
+
+## Prerequisites
+
+- **Node.js 18+** and npm
+- **Python 3.10+**
+- **Git**
+- **Claude Code** (agent personas and design skills plug in here)
+- **Ollama** (for MiniFish predictions and local PromptFoo evals)
+
+## How each tool works
+
+### Always on (passive) - The Agency + Impeccable
+
+These install files globally into `~/.claude/agents/` and `~/.claude/skills/`. Once set up, they're active in every Claude Code session on your Mac, across every project. There's nothing to run. Claude Code automatically reads the agent persona files and applies the design rules.
+
+`setup.sh` also offers to write agent and design rules into `~/.claude/CLAUDE.md` — Claude Code's global instruction file. When installed there, the rules apply to every project on your machine automatically, with no per-project setup required.
+
+### Interactive - MiniFish
+
+This is the main thing you actually run in the dashboard. Open the MiniFish tab, type a topic or paste an article, and watch 5-7 AI agents debate it in real time. The moderator synthesizes a prediction report at the end. All runs locally via Ollama.
+
+### On demand - PromptFoo
+
+Only relevant if you're building apps that make LLM calls. You write YAML test configs defining your prompts and expected behaviors, then run evals to catch regressions or red-team scans to find security vulnerabilities. The PromptFoo tab in the dashboard lets you edit configs and run scans.
+
+### Needs setup - OpenViking
+
+Agent memory with tiered loading (L0/L1/L2) that reduces token usage by 83-96% across long sessions. Run `./setup.sh --full` to install it, then configure via the Memory tab.
+
+| Tool | Mode | Cost |
+| --- | --- | --- |
+| **The Agency** | Always on in Claude Code globally | Free |
+| **Impeccable** | Always on in Claude Code globally | Free |
+| **MiniFish** | Interactive: run in this dashboard | Free |
+| **PromptFoo** | On demand: test LLM prompts in your apps | Free |
+| **OpenViking** | Setup needed: agent memory across sessions | Free |
+
+## The web dashboard (forge.py)
+
+`forge.py` is the primary interface for AI Forge. It's a single-file Python web server with no dependencies beyond the standard library. Run it and open `http://localhost:8000`.
+
+**Dashboard tabs:**
+
+- **Dashboard** - Status overview (Ollama, models, agents, PromptFoo) and tool descriptions
+- **MiniFish** - Run a prediction: pick a topic, model, and agents; watch the debate stream in real time
+- **History** - Browse saved prediction reports, view in modal, export as Markdown
+- **PromptFoo** - Edit config files, run eval or red-team scans, view structured pass/fail results
+- **Configure** - All reference and config in one place, with inner tabs:
+  - **Agents** - Browse and search all 180 installed Agency personas
+  - **Design** - Reference grid of all 17 Impeccable commands; click to copy
+  - **Personas** - Edit MiniFish agent personas (name, emoji, color, system prompt)
+  - **Memory** - OpenViking status, workspace file browser, edit config
+  - **Settings** - Configure Ollama URL, default model, default agent count and rounds
+
+## Usage
+
+### Agent personas (automatic)
+
+Once installed, Claude Code has access to 180 specialist agents via `~/.claude/agents/`. When you also install the global `~/.claude/CLAUDE.md`, Claude Code knows how and when to use each persona — no per-project setup needed.
+
+### MiniFish predictions (via GUI)
+
+Open the MiniFish tab, type a topic or paste an article, select your agents, click Run. The debate streams in as it happens.
+
+### MiniFish predictions (CLI)
+
+```bash
+# Quick prediction
+python minifish/minifish.py "Will AI replace frontend developers by 2028?"
+
+# Analyze a news article
+python minifish/minifish.py --file article.txt
+
+# More thorough (7 agents, 3 rounds)
+python minifish/minifish.py --agents 7 --rounds 3 "Your topic"
+
+# Interactive mode
+python minifish/minifish.py --interactive
+```
+
+### Prompt testing (via GUI)
+
+Open the PromptFoo tab, select or edit a config, click Run Eval. Results show pass/fail counts per test.
+
+### Prompt testing (CLI)
+
+```bash
+# Edit configs/promptfoo/eval-config.yaml with your prompts, then:
+./scripts/test-prompts.sh
+
+# Security red-team scan:
+./scripts/redteam.sh
+```
+
+### Apply to a new project
+
+```bash
+./scripts/new-project.sh ~/my-new-app
+```
+
+Copies PromptFoo configs and scripts into your project. Add a `CLAUDE.md` describing your tech stack and design direction — the more specific it is, the better every Claude Code interaction becomes.
+
+### CLAUDE.md: global vs project
+
+| File | Purpose |
+| --- | --- |
+| `~/.claude/CLAUDE.md` | Global rules — agent personas + design rules, active in every project |
+| `<project>/CLAUDE.md` | Project-specific — tech stack, design direction, project description |
+
+`setup.sh` copies `CLAUDE.md` from this repo into `~/.claude/CLAUDE.md` (with a Y/n prompt). If a global file already exists, the old one is backed up to `~/.claude/CLAUDE.md.bak` before being replaced.
+
+## Project structure
+
+```text
+ai-forge/
+├── forge.py                          # Web dashboard (primary interface)
+├── setup.sh                          # One-command install
+├── CLAUDE.md                         # Source for global ~/.claude/CLAUDE.md
+├── LICENSE
+├── minifish/
+│   ├── minifish.py                   # CLI prediction engine
+│   ├── gui.py                        # GUI helper for the dashboard
+│   └── README.md
+├── configs/
+│   ├── promptfoo/
+│   │   ├── eval-config.yaml          # Prompt evaluation template
+│   │   └── redteam-config.yaml       # Security red-team template
+│   └── openviking/
+│       └── config.yaml               # Agent memory config (Ollama-first)
+├── scripts/
+│   ├── test-prompts.sh               # Run prompt evaluations
+│   ├── redteam.sh                    # Run security scan
+│   ├── new-project.sh                # Initialize AI Forge in a new project
+│   ├── update-all.sh                 # Update all tools
+│   └── uninstall.sh                  # Remove installed components
+├── docs/
+│   └── USAGE.md                      # Usage guide and companion stack
+└── .cache/                           # Cloned repos (gitignored)
+```
+
+## Updating
+
+```bash
+./scripts/update-all.sh
+```
+
+## Uninstalling
+
+```bash
+./scripts/uninstall.sh
+```
+
+Choose to remove everything or select individual components. If you installed the global `~/.claude/CLAUDE.md`, you'll be given the option to restore your previous backup or delete it.
+
+## Troubleshooting
+
+**Ollama offline in the dashboard** - Run `ollama serve` in a terminal. It doesn't start automatically on macOS unless you've set it up as a service.
+
+**No models showing in MiniFish** - Pull a model first: `ollama pull llama3.1:8b` (or any model you prefer). The model name must match exactly what `ollama list` shows.
+
+**PromptFoo not found** - Run `npm install -g promptfoo` or re-run `./setup.sh`.
+
+**Agent personas not showing** - Run `./setup.sh` to clone and install them into `~/.claude/agents/`. Check that the directory exists: `ls ~/.claude/agents/`.
+
+**Port 8000 in use** - Edit the `PORT` constant at the top of `forge.py`.
+
+**Restore previous global CLAUDE.md** - If setup overwrote your existing `~/.claude/CLAUDE.md`, the original is at `~/.claude/CLAUDE.md.bak`. Run `mv ~/.claude/CLAUDE.md.bak ~/.claude/CLAUDE.md` to restore it, or use `./scripts/uninstall.sh` which walks you through this.
+
+## License
+
+MIT. Each bundled tool retains its own license:
+
+- The Agency: MIT
+- Impeccable: Apache 2.0
+- PromptFoo: MIT
+- MiroFish (inspiration for MiniFish): AGPL-3.0
+- OpenViking: Apache 2.0
+
+## Credits
+
+- [The Agency](https://github.com/msitarzewski/agency-agents) by msitarzewski
+- [Impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus
+- [PromptFoo](https://github.com/promptfoo/promptfoo) by the PromptFoo team
+- [MiroFish](https://github.com/666ghj/MiroFish) by Guo Hangjiang (MiniFish inspiration)
+- [OpenViking](https://github.com/volcengine/OpenViking) by Volcengine/ByteDance
+
+Inspired by Fireship's [March 2026 video](https://youtu.be/Xn-gtHDsaPY).

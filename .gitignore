@@ -1,0 +1,16 @@
+.cache/
+.setup.log
+.env
+.env.local
+.DS_Store
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+.promptfoo/
+.openviking/
+output/
+.log
+.claude/
+.forge-data/
+.dist/

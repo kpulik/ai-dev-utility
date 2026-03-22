@@ -1,0 +1,45 @@
+# OpenViking Configuration - Local-First via Ollama
+# Agent context database with tiered loading (83-96% token savings)
+# Docs: https://github.com/volcengine/OpenViking
+
+workspace_dir: ~/.openviking/workspace
+
+# LLM: using Ollama locally (free, no API key needed)
+llm:
+  provider: openai  # Ollama exposes an OpenAI-compatible API
+  model: llama3.2
+  api_key: ollama   # Ollama doesn't check this, but the field is required
+  base_url: http://localhost:11434/v1
+
+# Embeddings: using Ollama locally
+embedding:
+  provider: openai
+  model: nomic-embed-text
+  api_key: ollama
+  base_url: http://localhost:11434/v1
+
+# Tiered loading (the key feature that saves tokens)
+#   L0: ~100 tokens  -> quick summary (like a file listing)
+#   L1: ~2000 tokens -> overview for decision-making
+#   L2: full content -> only when the agent truly needs detail
+tiered_loading:
+  enabled: true
+  l0_max_tokens: 100
+  l1_max_tokens: 2000
+
+# Memory self-evolution
+memory:
+  auto_extract: true
+  compression: true
+  max_memories: 1000
+
+# To use a cloud provider instead (faster, costs money):
+# llm:
+#   provider: openai
+#   model: gpt-4o-mini
+#   api_key: ${OPENAI_API_KEY}
+#
+# embedding:
+#   provider: openai
+#   model: text-embedding-3-small
+#   api_key: ${OPENAI_API_KEY}

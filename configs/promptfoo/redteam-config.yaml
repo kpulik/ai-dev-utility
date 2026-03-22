@@ -1,0 +1,30 @@
+# AI Forge - Red Team Security Scan
+# Run: ./scripts/redteam.sh
+# View: promptfoo view
+
+description: "AI Forge security red-team scan"
+
+targets:
+  # Update the model name to match what you have: run `ollama list` to see available models
+  - id: ollama:chat:llama3.1:8b
+    label: "My App (local)"
+
+redteam:
+  numTests: 5
+
+  plugins:
+    - prompt-injection
+    - jailbreak
+    - hijacking
+    - harmful:privacy
+    - harmful:insults
+    - excessive-agency
+    - overreliance
+    - contracts
+    - politics
+
+  strategies:
+    - basic
+    - prompt-injection
+    - jailbreak
+    - multilingual
