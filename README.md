@@ -1,8 +1,8 @@
 # AI Forge
 
-**Five open-source AI developer tools, unified into one setup and one web dashboard. All local. Zero API costs.**
+**Four open-source AI developer tools, unified into one setup and one web dashboard. All local. Zero API costs.**
 
-AI Forge combines [The Agency](https://github.com/msitarzewski/agency-agents), [Impeccable](https://github.com/pbakaus/impeccable), [PromptFoo](https://github.com/promptfoo/promptfoo), MiniFish (a lightweight local version of [MiroFish](https://github.com/666ghj/MiroFish)), and [OpenViking](https://github.com/volcengine/OpenViking) into a single `setup.sh` that configures your entire AI development environment in under a minute.
+AI Forge combines [The Agency](https://github.com/msitarzewski/agency-agents), [Impeccable](https://github.com/pbakaus/impeccable), [PromptFoo](https://github.com/promptfoo/promptfoo), and MiniFish (a lightweight local version of [MiroFish](https://github.com/666ghj/MiroFish)) into a single `setup.sh` that configures your entire AI development environment in under a minute.
 
 Everything runs on your Mac via Ollama. No cloud APIs required.
 
@@ -11,7 +11,7 @@ Everything runs on your Mac via Ollama. No cloud APIs required.
 ```bash
 git clone https://github.com/kpulik/ai-forge.git
 cd ai-forge
-./setup.sh          # installs all 5 tools
+./setup.sh          # installs all 4 tools
 python forge.py     # launches the web dashboard
 # Open http://localhost:8000
 ```
@@ -24,10 +24,10 @@ ollama serve
 ollama pull llama3.1:8b   # or any model you prefer
 ```
 
-For everything including OpenViking agent memory:
+To also install Ollama and pull a local model:
 
 ```bash
-./setup.sh --full --ollama
+./setup.sh --ollama
 ```
 
 ## Prerequisites
@@ -54,17 +54,12 @@ This is the main thing you actually run in the dashboard. Open the MiniFish tab,
 
 Only relevant if you're building apps that make LLM calls. You write YAML test configs defining your prompts and expected behaviors, then run evals to catch regressions or red-team scans to find security vulnerabilities. The PromptFoo tab in the dashboard lets you edit configs and run scans.
 
-### Needs setup - OpenViking
-
-Agent memory with tiered loading (L0/L1/L2) that reduces token usage by 83-96% across long sessions. Run `./setup.sh --full` to install it, then configure via the Memory tab.
-
 | Tool | Mode | Cost |
 | --- | --- | --- |
 | **The Agency** | Always on in Claude Code globally | Free |
 | **Impeccable** | Always on in Claude Code globally | Free |
 | **MiniFish** | Interactive: run in this dashboard | Free |
 | **PromptFoo** | On demand: test LLM prompts in your apps | Free |
-| **OpenViking** | Setup needed: agent memory across sessions | Free |
 
 ## The web dashboard (forge.py)
 
@@ -80,7 +75,6 @@ Agent memory with tiered loading (L0/L1/L2) that reduces token usage by 83-96% a
   - **Agents** - Browse and search all 180 installed Agency personas
   - **Design** - Reference grid of all 17 Impeccable commands; click to copy
   - **Personas** - Edit MiniFish agent personas (name, emoji, color, system prompt)
-  - **Memory** - OpenViking status, workspace file browser, edit config
   - **Settings** - Configure Ollama URL, default model, default agent count and rounds
 
 ## Usage
@@ -156,8 +150,6 @@ ai-forge/
 │   ├── promptfoo/
 │   │   ├── eval-config.yaml          # Prompt evaluation template
 │   │   └── redteam-config.yaml       # Security red-team template
-│   └── openviking/
-│       └── config.yaml               # Agent memory config (Ollama-first)
 ├── scripts/
 │   ├── test-prompts.sh               # Run prompt evaluations
 │   ├── redteam.sh                    # Run security scan
@@ -205,7 +197,6 @@ MIT. Each bundled tool retains its own license:
 - Impeccable: Apache 2.0
 - PromptFoo: MIT
 - MiroFish (inspiration for MiniFish): AGPL-3.0
-- OpenViking: Apache 2.0
 
 ## Credits
 
@@ -213,6 +204,5 @@ MIT. Each bundled tool retains its own license:
 - [Impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus
 - [PromptFoo](https://github.com/promptfoo/promptfoo) by the PromptFoo team
 - [MiroFish](https://github.com/666ghj/MiroFish) by Guo Hangjiang (MiniFish inspiration)
-- [OpenViking](https://github.com/volcengine/OpenViking) by Volcengine/ByteDance
 
 Inspired by Fireship's [March 2026 video](https://youtu.be/Xn-gtHDsaPY).

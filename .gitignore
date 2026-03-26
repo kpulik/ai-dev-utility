@@ -8,7 +8,6 @@ __pycache__/
 *.pyc
 .venv/
 .promptfoo/
-.openviking/
 output/
 .log
 .claude/

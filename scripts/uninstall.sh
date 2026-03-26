@@ -23,17 +23,15 @@ HAS_SKILLS=false
 HAS_GLOBAL_CLAUDE=false
 HAS_GLOBAL_CLAUDE_BAK=false
 HAS_PROMPTFOO=false
-HAS_OPENVIKING=false
 
 if [[ -f "$MANIFEST_FILE" ]]; then
     while IFS= read -r line; do
         case "$line" in
-            agents)           HAS_AGENTS=true ;;
-            skills)           HAS_SKILLS=true ;;
-            global_claude)    HAS_GLOBAL_CLAUDE=true ;;
+            agents)            HAS_AGENTS=true ;;
+            skills)            HAS_SKILLS=true ;;
+            global_claude)     HAS_GLOBAL_CLAUDE=true ;;
             global_claude_bak) HAS_GLOBAL_CLAUDE_BAK=true ;;
-            promptfoo)        HAS_PROMPTFOO=true ;;
-            openviking)       HAS_OPENVIKING=true ;;
+            promptfoo)         HAS_PROMPTFOO=true ;;
         esac
     done < "$MANIFEST_FILE"
 else
@@ -45,7 +43,6 @@ else
     echo "  Skills:        rm -rf ~/.claude/skills/"
     echo "  Global rules:  rm ~/.claude/CLAUDE.md"
     echo "  PromptFoo:     npm uninstall -g promptfoo"
-    echo "  OpenViking:    pip3 uninstall openviking"
     exit 0
 fi
 
@@ -64,8 +61,6 @@ echo -e "${BOLD}Installed components:${NC}"
 [[ "$HAS_GLOBAL_CLAUDE_BAK" == true ]] && echo -e "  ${CYAN}[i]${NC} Backup available   (~/.claude/CLAUDE.md.bak)"
 [[ "$HAS_PROMPTFOO" == true ]]     && echo -e "  ${GREEN}[+]${NC} PromptFoo          (global npm package)" \
                                    || echo -e "  ${CYAN}[-]${NC} PromptFoo          not installed by AI Forge"
-[[ "$HAS_OPENVIKING" == true ]]    && echo -e "  ${GREEN}[+]${NC} OpenViking         (pip package)" \
-                                   || echo -e "  ${CYAN}[-]${NC} OpenViking         not installed"
 
 echo ""
 echo -e "${BOLD}What would you like to remove?${NC}"
@@ -171,35 +166,21 @@ remove_promptfoo() {
     fi
 }
 
-remove_openviking() {
-    if pip3 show openviking &>/dev/null 2>&1; then
-        if pip3 uninstall -y openviking 2>/dev/null; then
-            log "Removed OpenViking"
-        else
-            warn "pip uninstall failed. Try manually: pip3 uninstall openviking"
-        fi
-    else
-        info "OpenViking not installed, skipping."
-    fi
-}
-
 # ============================================================================
 # Execute removals
 # ============================================================================
 echo ""
 
 if $REMOVE_ALL; then
-    [[ "$HAS_AGENTS" == true ]]       && remove_agents
-    [[ "$HAS_SKILLS" == true ]]       && remove_skills
+    [[ "$HAS_AGENTS" == true ]]        && remove_agents
+    [[ "$HAS_SKILLS" == true ]]        && remove_skills
     [[ "$HAS_GLOBAL_CLAUDE" == true ]] && remove_global_claude
-    [[ "$HAS_PROMPTFOO" == true ]]    && remove_promptfoo
-    [[ "$HAS_OPENVIKING" == true ]]   && remove_openviking
+    [[ "$HAS_PROMPTFOO" == true ]]     && remove_promptfoo
 else
-    [[ "$HAS_AGENTS" == true ]]       && ask_remove "agent personas (~/.claude/agents/)"   && remove_agents
-    [[ "$HAS_SKILLS" == true ]]       && ask_remove "design skills (~/.claude/skills/)"   && remove_skills
-    [[ "$HAS_GLOBAL_CLAUDE" == true ]] && ask_remove "global CLAUDE.md (~/.claude/CLAUDE.md)" && remove_global_claude
-    [[ "$HAS_PROMPTFOO" == true ]]    && ask_remove "PromptFoo (npm package)"              && remove_promptfoo
-    [[ "$HAS_OPENVIKING" == true ]]   && ask_remove "OpenViking (pip package)"             && remove_openviking
+    [[ "$HAS_AGENTS" == true ]]        && ask_remove "agent personas (~/.claude/agents/)"       && remove_agents
+    [[ "$HAS_SKILLS" == true ]]        && ask_remove "design skills (~/.claude/skills/)"        && remove_skills
+    [[ "$HAS_GLOBAL_CLAUDE" == true ]] && ask_remove "global CLAUDE.md (~/.claude/CLAUDE.md)"  && remove_global_claude
+    [[ "$HAS_PROMPTFOO" == true ]]     && ask_remove "PromptFoo (npm package)"                  && remove_promptfoo
 fi
 
 # Clean up manifest

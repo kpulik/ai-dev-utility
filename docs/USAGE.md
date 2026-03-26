@@ -61,12 +61,6 @@ Use MiniFish when you want structured multi-perspective analysis on a question, 
 
 Run it from the MiniFish tab in the dashboard, or via CLI: `python minifish/minifish.py "your question"`.
 
-## Agent memory (OpenViking)
-
-Useful when building AI agents that need to remember context across long sessions. OpenViking's tiered loading gives agents a quick summary first (L0, ~100 tokens) and only loads full details when needed (L1/L2), saving 83-96% on tokens compared to loading everything.
-
-Install with `./setup.sh --full`, then configure via Configure > Memory in the dashboard.
-
 ## Customizing CLAUDE.md for a project
 
 When applying AI Forge to a project with `./scripts/new-project.sh`, customize the generated `CLAUDE.md` with your project-specific details. The more specific it is, the better every AI interaction becomes:

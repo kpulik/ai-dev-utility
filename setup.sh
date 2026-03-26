@@ -4,7 +4,7 @@ set -euo pipefail
 # ============================================================================
 # AI Forge - Unified AI Developer Toolkit Setup
 # 5 tools, all local, zero API costs
-# The Agency | Impeccable | PromptFoo | MiniFish | OpenViking
+# The Agency | Impeccable | PromptFoo | MiniFish
 # ============================================================================
 
 BOLD='\033[1m'
@@ -94,7 +94,6 @@ mkdir -p "$HOME/.claude"
 # ============================================================================
 # Parse arguments
 # ============================================================================
-INSTALL_OPENVIKING=false
 INSTALL_OLLAMA=false
 TARGET_PROJECT=""
 
@@ -103,20 +102,18 @@ print_usage() {
     echo ""
     echo "Options:"
     echo "  (no flags)       Install core: Agency + Impeccable + PromptFoo + MiniFish"
-    echo "  --full           Also install OpenViking agent memory"
     echo "  --ollama         Also install Ollama and pull a default model"
     echo "  --project DIR    Apply AI Forge configs to an existing project"
     echo "  --help           Show this help"
     echo ""
     echo "Examples:"
-    echo "  ./setup.sh                       # Core 4 tools for Claude Code"
-    echo "  ./setup.sh --full --ollama       # Everything + local LLM"
+    echo "  ./setup.sh                       # Core tools for Claude Code"
+    echo "  ./setup.sh --ollama              # Core tools + local LLM"
     echo "  ./setup.sh --project ~/my-app    # Apply to a project"
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --full) INSTALL_OPENVIKING=true; shift ;;
         --ollama) INSTALL_OLLAMA=true; shift ;;
         --project) TARGET_PROJECT="$2"; shift 2 ;;
         --help) print_usage; exit 0 ;;
@@ -127,7 +124,7 @@ done
 # ============================================================================
 # 1. The Agency - Agent Personas
 # ============================================================================
-section "1/5 The Agency (Agent Personas)"
+section "1/4 The Agency (Agent Personas)"
 
 AGENCY_DIR="$SCRIPT_DIR/.cache/agency-agents"
 if [[ -d "$AGENCY_DIR" ]]; then
@@ -157,7 +154,7 @@ fi
 # ============================================================================
 # 2. Impeccable - Frontend Design Commands
 # ============================================================================
-section "2/5 Impeccable (Design Commands)"
+section "2/4 Impeccable (Design Commands)"
 
 IMPECCABLE_DIR="$SCRIPT_DIR/.cache/impeccable"
 if [[ -d "$IMPECCABLE_DIR" ]]; then
@@ -228,7 +225,7 @@ fi
 # ============================================================================
 # 3. PromptFoo - Prompt Testing & Red-Teaming
 # ============================================================================
-section "3/5 PromptFoo (Prompt Testing)"
+section "3/4 PromptFoo (Prompt Testing)"
 
 if command -v promptfoo &>/dev/null; then
     PVER=$(promptfoo --version 2>/dev/null || echo "installed")
@@ -243,7 +240,7 @@ log "Configs ready in configs/promptfoo/"
 # ============================================================================
 # 4. MiniFish - Local Prediction Engine
 # ============================================================================
-section "4/5 MiniFish (Local Prediction Engine)"
+section "4/4 MiniFish (Local Prediction Engine)"
 
 if [[ -f "$SCRIPT_DIR/minifish/minifish.py" ]]; then
     chmod +x "$SCRIPT_DIR/minifish/minifish.py"
@@ -251,28 +248,6 @@ if [[ -f "$SCRIPT_DIR/minifish/minifish.py" ]]; then
     info "Requires Ollama: brew install ollama && ollama pull llama3.2"
 else
     err "minifish.py not found (should be in minifish/ directory)"
-fi
-
-# ============================================================================
-# 5. OpenViking - Agent Memory (optional)
-# ============================================================================
-section "5/5 OpenViking (Agent Memory)"
-
-if $INSTALL_OPENVIKING; then
-    if run_with_spinner "Installing OpenViking" pip3 install openviking --upgrade --user; then
-        : # success logged by spinner
-    elif run_with_spinner "Installing OpenViking (fallback)" pip3 install openviking --upgrade; then
-        : # success logged by spinner
-    elif run_with_spinner "Installing OpenViking (system)" pip3 install openviking --upgrade --break-system-packages; then
-        : # success logged by spinner
-    else
-        warn "OpenViking install failed. Try manually: pip install openviking --user"
-    fi
-    echo "openviking" >> "$MANIFEST_FILE"
-    log "Config ready in configs/openviking/config.yaml"
-else
-    info "Skipped (use --full to install)"
-    info "OpenViking adds persistent memory for AI agents with 83-96% token savings"
 fi
 
 # ============================================================================
@@ -342,22 +317,6 @@ if $INSTALL_OLLAMA; then
             info "Skipping model pull. Pull one later with: ollama pull <model>"
         fi
 
-        # Pull embedding model for OpenViking (optional)
-        if $INSTALL_OPENVIKING; then
-            if ollama list 2>/dev/null | grep -q "nomic-embed-text"; then
-                log "nomic-embed-text already available"
-            else
-                echo ""
-                read -r -p "Pull nomic-embed-text for OpenViking embeddings (~274MB)? [y/N]: " PULL_EMBED
-                if [[ "$PULL_EMBED" == "y" || "$PULL_EMBED" == "Y" ]]; then
-                    info "Pulling nomic-embed-text..."
-                    ollama pull nomic-embed-text
-                    log "Embedding model ready"
-                else
-                    info "Skipped. Pull later with: ollama pull nomic-embed-text"
-                fi
-            fi
-        fi
     fi
 fi
 
@@ -384,11 +343,6 @@ else
 fi
 echo -e "  ${GREEN}[+]${NC} PromptFoo      Prompt testing + security scanning"
 echo -e "  ${GREEN}[+]${NC} MiniFish       Local multi-agent predictions"
-if $INSTALL_OPENVIKING; then
-    echo -e "  ${GREEN}[+]${NC} OpenViking     Agent memory database"
-else
-    echo -e "  ${CYAN}[-]${NC} OpenViking     Skipped (use --full)"
-fi
 if $INSTALL_OLLAMA && command -v ollama &>/dev/null; then
     if [[ -n "${PULL_MODEL:-}" ]]; then
         echo -e "  ${GREEN}[+]${NC} Ollama         Local LLM runtime + $PULL_MODEL"

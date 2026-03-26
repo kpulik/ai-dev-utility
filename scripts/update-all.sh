@@ -19,10 +19,5 @@ fi
 echo "[3/3] Updating PromptFoo..."
 npm update -g promptfoo 2>/dev/null || echo "  Skipped (not installed globally)"
 
-if pip3 show openviking &>/dev/null 2>&1; then
-    echo "[bonus] Updating OpenViking..."
-    pip3 install openviking --upgrade --quiet 2>/dev/null || true
-fi
-
 echo ""
 echo "Done!"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 AI Forge - Unified GUI
-One dashboard controlling all 5 tools: Agency, Impeccable, PromptFoo, MiniFish, OpenViking.
+One dashboard controlling all tools: Agency, Impeccable, PromptFoo, MiniFish.
 
 Run:    python forge.py
 Open:   http://localhost:8000
@@ -313,47 +313,6 @@ def write_config_file(filename, content):
     p.write_text(content)
 
 # ============================================================================
-# OpenViking Integration
-# ============================================================================
-
-def get_openviking_status():
-    """Check if openviking is installed and return workspace info."""
-    try:
-        r = subprocess.run(["pip3", "show", "openviking"], capture_output=True, text=True, timeout=5)
-        installed = r.returncode == 0
-        version = ""
-        if installed:
-            for line in r.stdout.splitlines():
-                if line.startswith("Version:"):
-                    version = line.split(":", 1)[1].strip()
-        workspace = Path.home() / ".openviking" / "workspace"
-        return {
-            "installed": installed,
-            "version": version,
-            "workspace": str(workspace),
-            "workspace_exists": workspace.exists(),
-        }
-    except Exception as e:
-        workspace = Path.home() / ".openviking" / "workspace"
-        return {"installed": False, "version": "", "workspace": str(workspace), "workspace_exists": False}
-
-def get_openviking_memories():
-    """List files in the OpenViking workspace."""
-    workspace = Path.home() / ".openviking" / "workspace"
-    memories = []
-    if workspace.exists():
-        for f in sorted(workspace.glob("**/*"))[:100]:
-            if f.is_file():
-                try:
-                    memories.append({
-                        "path": str(f.relative_to(workspace)),
-                        "size": f.stat().st_size,
-                        "modified": f.stat().st_mtime,
-                    })
-                except: pass
-    return memories
-
-# ============================================================================
 # HTML
 # ============================================================================
 
@@ -612,7 +571,7 @@ input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;hei
 // ============================================================================
 let agents=[], ollamaModels=[], pfStatus={}, agencyAgents=[], appSettings={};
 let currentPanel='dash', configPanel='agents';
-let simEventSource=null, currentReport=null;
+let currentReport=null;
 
 // ============================================================================
 // Init
@@ -646,7 +605,7 @@ function el(id){return document.getElementById(id)}
 
 function nav(panel){
   currentPanel=panel;
-  if(simEventSource&&panel!=='predict'){simEventSource.close();simEventSource=null;}
+  if(simPollInterval&&panel!=='predict'){stopPolling();}
   document.querySelectorAll('.nav-item').forEach((n,i)=>{
     const panels=['dash','predict','history','promptfoo','configure'];
     n.classList.toggle('active',panels[i]===panel);
@@ -751,6 +710,13 @@ function renderPredict(m){
   </div>`;
 }
 
+let simPollInterval=null, simPollIdx=0;
+
+function stopPolling(){
+  if(simPollInterval){clearInterval(simPollInterval);simPollInterval=null;}
+  simPollIdx=0;
+}
+
 async function runSim(){
   const topic=el('topic').value.trim();if(!topic)return;
   const model=el('model').value;
@@ -759,26 +725,31 @@ async function runSim(){
   if(sel.length<3){alert('Select at least 3 agents');return;}
   el('runBtn').disabled=true;el('runBtn').textContent='Running...';
   el('feed').innerHTML='';
-  if(simEventSource){simEventSource.close();simEventSource=null;}
+  stopPolling();
   try{
     const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,model,agents:sel,rounds})});
     const d=await r.json();
     if(d.error){el('runBtn').disabled=false;el('runBtn').textContent='Run Prediction';alert(d.error);return;}
-    simEventSource=new EventSource('/api/stream');
-    simEventSource.onmessage=handleSimEvent;
-    simEventSource.onerror=()=>{simEventSource.close();simEventSource=null;const b=el('runBtn');if(b){b.disabled=false;b.textContent='Run Prediction';}};
+    simPollIdx=0;
+    simPollInterval=setInterval(pollEvents,400);
   }catch(e){el('runBtn').disabled=false;el('runBtn').textContent='Run Prediction';}
 }
 
-function handleSimEvent(e){
-  let evt;try{evt=JSON.parse(e.data);}catch{return;}
-  if(evt.type==='stream_end'){simEventSource.close();simEventSource=null;return;}
+async function pollEvents(){
+  try{
+    const r=await fetch(`/api/events?since=${simPollIdx}`);
+    const evts=await r.json();
+    for(const evt of evts){handleSimEvent(evt);simPollIdx++;}
+  }catch(e){}
+}
+
+function handleSimEvent(evt){
   const f=el('feed');if(!f)return;
   if(evt.type==='phase') f.innerHTML+=`<div class="phase-div">${esc(evt.data.name)}</div>`;
   else if(evt.type==='thinking'){const p=document.getElementById('thk');if(p)p.remove();f.innerHTML+=`<div class="thinking" id="thk"><div class="dots"><span></span><span></span><span></span></div>${esc(evt.data.name)} thinking...</div>`;}
-  else if(evt.type==='response'){const p=document.getElementById('thk');if(p)p.remove();f.innerHTML+=`<div class="msg" style="border-left-color:${evt.data.color}"><div class="msg-head"><span class="msg-name" style="color:${evt.data.color}">${evt.data.emoji} ${esc(evt.data.name)}</span><span class="msg-time">${evt.data.time}s</span></div><div class="msg-text">${esc(evt.data.text)}</div></div>`;window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});}
-  else if(evt.type==='report'){const p=document.getElementById('thk');if(p)p.remove();currentReport=evt.data;f.innerHTML+=`<div class="report-box"><h3>Prediction Report</h3><div class="report-text">${fmtReport(evt.data.text)}</div><div style="margin-top:14px"><button class="btn btn-ghost btn-sm" onclick="exportMd()">Export Markdown</button></div></div>`;window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});}
-  else if(evt.type==='done'){simEventSource.close();simEventSource=null;const b=el('runBtn');if(b){b.disabled=false;b.textContent='Run Prediction';}}
+  else if(evt.type==='response'){const p=document.getElementById('thk');if(p)p.remove();f.innerHTML+=`<div class="msg" style="border-left-color:${evt.data.color}"><div class="msg-head"><span class="msg-name" style="color:${evt.data.color}">${evt.data.emoji} ${esc(evt.data.name)}</span><span class="msg-time">${evt.data.time}s</span></div><div class="msg-text">${esc(evt.data.text)}</div></div>`;f.scrollIntoView({block:'end',behavior:'smooth'});}
+  else if(evt.type==='report'){const p=document.getElementById('thk');if(p)p.remove();currentReport=evt.data;f.innerHTML+=`<div class="report-box"><h3>Prediction Report</h3><div class="report-text">${fmtReport(evt.data.text)}</div><div style="margin-top:14px"><button class="btn btn-ghost btn-sm" onclick="exportMd()">Export Markdown</button></div></div>`;f.scrollIntoView({block:'end',behavior:'smooth'});}
+  else if(evt.type==='done'){stopPolling();const b=el('runBtn');if(b){b.disabled=false;b.textContent='Run Prediction';}}
 }
 
 function fmtReport(t){return t.replace(/## (.*)/g,'<strong style="color:var(--acc);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:1px;display:block;margin-top:14px;margin-bottom:2px">$1</strong>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}
@@ -884,14 +855,14 @@ async function openPfView(){
 }
 
 // ============================================================================
-// Configure (inner tabs: Agents, Design, Personas, Memory, Settings)
+// Configure (inner tabs: Agents, Design, Personas, Settings)
 // ============================================================================
 function renderConfigure(m){
-  const tabs=['agents','design','personas','memory','settings'];
-  const labels=['Agents','Design','Personas','Memory','Settings'];
+  const tabs=['agents','design','personas','settings'];
+  const labels=['Agents','Design','Personas','Settings'];
   const tabHtml=tabs.map((t,i)=>`<div class="itab ${configPanel===t?'active':''}" onclick="setConfigPanel('${t}')">${labels[i]}</div>`).join('');
   m.innerHTML=`
-  <div class="page-header"><h2>Configure</h2><p>Agent personas, design commands, MiniFish agents, memory, and settings</p></div>
+  <div class="page-header"><h2>Configure</h2><p>Agent personas, design commands, MiniFish agents, and settings</p></div>
   <div class="itab-nav">${tabHtml}</div>
   <div id="configBody"></div>`;
   renderConfigBody();
@@ -899,14 +870,14 @@ function renderConfigure(m){
 
 function setConfigPanel(p){
   configPanel=p;
-  const tabs=['agents','design','personas','memory','settings'];
+  const tabs=['agents','design','personas','settings'];
   document.querySelectorAll('.itab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===p));
   renderConfigBody();
 }
 
 function renderConfigBody(){
   const cb=el('configBody');if(!cb)return;
-  const fns={agents:renderAgentsPanel,design:renderDesignPanel,personas:renderPersonasPanel,memory:renderMemoryPanel,settings:renderSettingsPanel};
+  const fns={agents:renderAgentsPanel,design:renderDesignPanel,personas:renderPersonasPanel,settings:renderSettingsPanel};
   (fns[configPanel]||renderAgentsPanel)(cb);
 }
 
@@ -1021,42 +992,6 @@ async function resetPersonas(){
   await fetch('/api/agents/reset',{method:'POST'});await loadAgents();renderPersonaCards();
 }
 
-// --- Memory panel (OpenViking) ---
-function renderMemoryPanel(m){
-  m.innerHTML=`<div id="memStatus"><div class="empty">Loading...</div></div>`;
-  fetch('/api/openviking').then(r=>r.json()).then(s=>{
-    const installed=s.installed;
-    const statusColor=installed?'var(--acc)':'var(--orange)';
-    const statusText=installed?'Installed v'+s.version:'Not installed';
-    el('memStatus').innerHTML=`
-    <div class="card">
-      <div class="card-header"><div class="card-title">OpenViking Status</div></div>
-      <div style="font-size:20px;font-family:var(--mono);color:${statusColor};margin-bottom:6px">${statusText}</div>
-      <div style="font-size:12px;color:var(--text-3)">Workspace: ${esc(s.workspace)}</div>
-      ${!installed?`<div style="margin-top:14px;font-size:13px;color:var(--text-2)">Install with: <code style="font-family:var(--mono);color:var(--acc)">./setup.sh --full</code></div>`:''}
-    </div>
-    <div class="card">
-      <div class="card-header"><div class="card-title">Config</div><div><button class="btn btn-ghost btn-sm" onclick="saveOvConfig()">Save</button></div></div>
-      <textarea id="ovEditor" class="code-textarea" style="min-height:260px"></textarea>
-    </div>
-    ${installed&&s.workspace_exists?`<div class="card"><div class="card-title">Workspace Files</div><div id="memFiles" style="margin-top:10px"></div></div>`:''}`;
-    fetch('/api/openviking/config').then(r=>r.text()).then(t=>{const ed=el('ovEditor');if(ed)ed.value=t;});
-    if(installed&&s.workspace_exists){
-      fetch('/api/openviking/memories').then(r=>r.json()).then(files=>{
-        const mf=el('memFiles');if(!mf)return;
-        if(!files.length){mf.innerHTML='<div class="empty" style="padding:20px 0">Workspace is empty.</div>';return;}
-        mf.innerHTML=files.map(f=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px"><span style="color:var(--text-2)">${esc(f.path)}</span><span style="color:var(--text-3)">${(f.size/1024).toFixed(1)}kb</span></div>`).join('');
-      });
-    }
-  });
-}
-
-async function saveOvConfig(){
-  const t=el('ovEditor').value;
-  await fetch('/api/openviking/config',{method:'POST',headers:{'Content-Type':'text/plain'},body:t});
-  const btn=event.target;btn.textContent='Saved!';setTimeout(()=>btn.textContent='Save',1500);
-}
-
 // --- Settings panel ---
 function renderSettingsPanel(m){
   m.innerHTML=`<div id="settingsCard"><div class="empty">Loading...</div></div>`;
@@ -1155,11 +1090,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
             else: self.j({"error":"not found"},404)
         elif p=="/api/impeccable": self.j(IMPECCABLE_COMMANDS)
         elif p=="/api/settings": self.j(APP_SETTINGS)
-        elif p=="/api/openviking": self.j(get_openviking_status())
-        elif p=="/api/openviking/memories": self.j(get_openviking_memories())
-        elif p=="/api/openviking/config":
-            cfg = FORGE_DIR / "configs" / "openviking" / "config.yaml"
-            self.t(cfg.read_text() if cfg.exists() else "")
         elif p=="/api/stream":
             self._sse_stream()
         else: self.send_response(404);self.end_headers()
@@ -1188,9 +1118,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
             try:
                 d=json.loads(b);APP_SETTINGS.update(d);save_settings(APP_SETTINGS);self.j({"ok":True})
             except: self.j({"error":"invalid json"},400)
-        elif p=="/api/openviking/config":
-            cfg = FORGE_DIR / "configs" / "openviking" / "config.yaml"
-            cfg.write_text(b.decode());self.j({"ok":True})
         else: self.send_response(404);self.end_headers()
 
     def _sse_stream(self):
