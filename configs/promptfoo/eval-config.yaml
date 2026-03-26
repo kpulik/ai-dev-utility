@@ -1,13 +1,13 @@
-# AI Forge - Prompt Evaluation Config
+# AI Dev Utility - Prompt Evaluation Config
 # Run: ./scripts/test-prompts.sh
 # View: promptfoo view
 
-description: "AI Forge prompt evaluation"
+description: "AI Dev Utility prompt evaluation"
 
 providers:
   # Local via Ollama (free, no API key)
   # Update the model name to match what you have: run `ollama list` to see available models
-  - id: ollama:chat:llama3.1:8b
+  - id: ollama:chat:llama3.2
     label: "Local (Ollama)"
 
   # Uncomment to also test against cloud providers:
@@ -19,7 +19,7 @@ providers:
 # Use the same local model as the judge for llm-rubric assertions (avoids needing OpenAI key)
 defaultTest:
   options:
-    provider: ollama:chat:llama3.1:8b
+    provider: ollama:chat:llama3.2
 
 prompts:
   - id: "assistant"

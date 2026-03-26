@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # ============================================================================
-# AI Forge - Unified AI Developer Toolkit Setup
-# 5 tools, all local, zero API costs
+# AI Dev Utility - Unified AI Developer Toolkit Setup
+# 4 tools, local-first, no required API costs when using Ollama
 # The Agency | Impeccable | PromptFoo | MiniFish
 # ============================================================================
 
@@ -87,7 +87,7 @@ fi
 log "Prerequisites OK"
 
 # Manifest tracks what this run installs so uninstall.sh knows what to remove
-MANIFEST_FILE="$HOME/.claude/.ai-forge-manifest"
+MANIFEST_FILE="$HOME/.claude/.ai-dev-utility-manifest"
 mkdir -p "$HOME/.claude"
 : > "$MANIFEST_FILE"
 
@@ -103,7 +103,7 @@ print_usage() {
     echo "Options:"
     echo "  (no flags)       Install core: Agency + Impeccable + PromptFoo + MiniFish"
     echo "  --ollama         Also install Ollama and pull a default model"
-    echo "  --project DIR    Apply AI Forge configs to an existing project"
+    echo "  --project DIR    Apply AI Dev Utility configs to an existing project"
     echo "  --help           Show this help"
     echo ""
     echo "Examples:"
@@ -195,7 +195,7 @@ INSTALL_GLOBAL_CLAUDE=false
 
 if [[ -f "$GLOBAL_CLAUDE" ]]; then
     info "~/.claude/CLAUDE.md already exists."
-    read -r -p "  Overwrite with AI Forge global rules (agent personas + design)? [y/N]: " OW_CHOICE
+    read -r -p "  Overwrite with AI Dev Utility global rules (agent personas + design)? [y/N]: " OW_CHOICE
     if [[ "$OW_CHOICE" == "y" || "$OW_CHOICE" == "Y" ]]; then
         INSTALL_GLOBAL_CLAUDE=true
     else

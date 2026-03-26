@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Forge - Run prompt evaluations
+# AI Dev Utility - Run prompt evaluations
 # Usage: ./scripts/test-prompts.sh [config-file]
 
 set -euo pipefail

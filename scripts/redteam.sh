@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Forge - Red-team security scan
+# AI Dev Utility - Red-team security scan
 # Usage: ./scripts/redteam.sh [config-file]
 
 set -euo pipefail

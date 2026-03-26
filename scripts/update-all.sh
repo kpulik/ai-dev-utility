@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# AI Forge - Update all tools
+# AI Dev Utility - Update all tools
 # Usage: ./scripts/update-all.sh
 
 set -euo pipefail
 
-echo "Updating AI Forge tools..."
+echo "Updating AI Dev Utility tools..."
 
 if [[ -d ".cache/agency-agents" ]]; then
     echo "[1/3] Updating Agency agents..."

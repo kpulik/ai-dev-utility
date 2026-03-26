@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Forge - Initialize AI Forge configs in a project
+# AI Dev Utility - Initialize AI Dev Utility configs in a project
 # Usage: ./scripts/new-project.sh /path/to/your/project
 
 set -euo pipefail
@@ -10,7 +10,7 @@ TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then
     echo "Usage: ./scripts/new-project.sh /path/to/your/project"
     echo ""
-    echo "Copies AI Forge configs into your project:"
+    echo "Copies AI Dev Utility configs into your project:"
     echo "  CLAUDE.md              Claude Code project instructions"
     echo "  configs/promptfoo/     Prompt testing configs"
     echo "  scripts/               Test and red-team scripts"
@@ -22,7 +22,7 @@ if [[ ! -d "$TARGET" ]]; then
     mkdir -p "$TARGET"
 fi
 
-echo "Initializing AI Forge in: $TARGET"
+echo "Initializing AI Dev Utility in: $TARGET"
 
 # CLAUDE.md
 if [[ -f "$TARGET/CLAUDE.md" ]]; then

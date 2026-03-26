@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AI Forge - Unified GUI
+AI Dev Utility - Unified GUI
 One dashboard controlling all tools: Agency, Impeccable, PromptFoo, MiniFish.
 
 Run:    python forge.py
@@ -320,7 +320,7 @@ HTML = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>AI Forge</title>
+<title>AI Dev Utility</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -542,7 +542,7 @@ input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;hei
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-wordmark">AI Forge <small>v1</small></div>
+      <div class="logo-wordmark">AI Dev Utility <small>v1</small></div>
       <div class="logo-sub">local dev toolkit</div>
     </div>
     <div class="nav-body">
@@ -673,7 +673,7 @@ function renderPredict(m){
   const defModel=appSettings.default_model||'';
   const defAgents=appSettings.default_agents||5;
   const defRounds=appSettings.default_rounds||2;
-  const modelOpts=ollamaModels.map(x=>`<option value="${esc(x)}" ${(defModel?x===defModel:x.includes('llama3.1'))?'selected':''}>${esc(x)}</option>`).join('');
+  const modelOpts=ollamaModels.map(x=>`<option value="${esc(x)}" ${(defModel?x===defModel:x.includes('llama3.2'))?'selected':''}>${esc(x)}</option>`).join('');
   const chipHtml=agents.map((a,i)=>`<div class="agent-chip ${i<defAgents?'on':''}" data-id="${esc(a.id)}" onclick="this.classList.toggle('on')"><span class="chip-dot" style="background:${a.color}"></span>${a.emoji} ${esc(a.name)}</div>`).join('');
   m.innerHTML=`
   <div class="page-header"><h2>MiniFish</h2><p>Multi-agent prediction engine. Select agents, enter a topic, run the debate.</p></div>
@@ -699,7 +699,7 @@ function renderPredict(m){
           <div class="agent-grid" id="agentGrid">${chipHtml}</div>
         </div>
         <button class="btn btn-primary btn-full" id="runBtn" onclick="runSim()">Run Prediction</button>
-        ${ollamaModels.length===0?'<div class="no-model-warn">No models found. Run: ollama pull llama3.1:8b</div>':''}
+        ${ollamaModels.length===0?'<div class="no-model-warn">No models found. Run: ollama pull llama3.2</div>':''}
       </div>
     </div>
     <div>
@@ -1164,7 +1164,7 @@ class ThreadingServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 def main():
     print(f"""
   +=======================================+
-  |           AI FORGE v1                 |
+  |        AI DEV UTILITY v1              |
   |  Unified AI Developer Toolkit         |
   +=======================================+
   |  Server:  http://localhost:{PORT}       |

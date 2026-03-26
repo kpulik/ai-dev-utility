@@ -1,4 +1,4 @@
-# AI Forge - Global Claude Code Rules
+# AI Dev Utility - Global Claude Code Rules
 
 ## Agent System
 

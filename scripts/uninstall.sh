@@ -13,7 +13,7 @@ warn() { echo -e "${YELLOW}[!]${NC} $1"; }
 err()  { echo -e "${RED}[x]${NC} $1"; }
 info() { echo -e "${CYAN}[i]${NC} $1"; }
 
-MANIFEST_FILE="$HOME/.claude/.ai-forge-manifest"
+MANIFEST_FILE="$HOME/.claude/.ai-dev-utility-manifest"
 
 # ============================================================================
 # Read manifest
@@ -35,8 +35,8 @@ if [[ -f "$MANIFEST_FILE" ]]; then
         esac
     done < "$MANIFEST_FILE"
 else
-    warn "No AI Forge manifest found (~/.claude/.ai-forge-manifest)."
-    warn "Either AI Forge was never installed, or setup was run before tracking was added."
+    warn "No AI Dev Utility manifest found (~/.claude/.ai-dev-utility-manifest)."
+    warn "Either AI Dev Utility was never installed, or setup was run before tracking was added."
     echo ""
     echo "You can still remove components manually:"
     echo "  Agents:        rm -rf ~/.claude/agents/"
@@ -49,7 +49,7 @@ fi
 # ============================================================================
 # Show what's installed
 # ============================================================================
-echo -e "\n${BOLD}AI Forge - Uninstall${NC}\n"
+echo -e "\n${BOLD}AI Dev Utility - Uninstall${NC}\n"
 echo -e "${BOLD}Installed components:${NC}"
 
 [[ "$HAS_AGENTS" == true ]]        && echo -e "  ${GREEN}[+]${NC} Agent personas     (~/.claude/agents/)" \
@@ -60,11 +60,11 @@ echo -e "${BOLD}Installed components:${NC}"
                                    || echo -e "  ${CYAN}[-]${NC} Global CLAUDE.md   not installed"
 [[ "$HAS_GLOBAL_CLAUDE_BAK" == true ]] && echo -e "  ${CYAN}[i]${NC} Backup available   (~/.claude/CLAUDE.md.bak)"
 [[ "$HAS_PROMPTFOO" == true ]]     && echo -e "  ${GREEN}[+]${NC} PromptFoo          (global npm package)" \
-                                   || echo -e "  ${CYAN}[-]${NC} PromptFoo          not installed by AI Forge"
+                                   || echo -e "  ${CYAN}[-]${NC} PromptFoo          not installed by AI Dev Utility"
 
 echo ""
 echo -e "${BOLD}What would you like to remove?${NC}"
-echo "  1) Everything installed by AI Forge"
+echo "  1) Everything installed by AI Dev Utility"
 echo "  2) Choose individually"
 echo "  q) Quit"
 echo ""

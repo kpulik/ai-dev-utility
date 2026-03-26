@@ -1,10 +1,10 @@
-# AI Forge Usage Guide
+# AI Dev Utility Usage Guide
 
 How to get the most out of each tool in your daily workflow.
 
 ## Using agent personas (The Agency)
 
-180 specialist agents are installed globally in `~/.claude/agents/`. You don't invoke them manually; they're always available as context. Reference the role you need in your prompt:
+Installed agent personas live in `~/.claude/agents/` (count depends on upstream; typically around 180). You don't invoke them manually; they're always available as context. Reference the role you need in your prompt:
 
 ```text
 I need to design the database schema for a multi-tenant billing system.
@@ -41,14 +41,14 @@ The slash commands in the Configure > Design tab (e.g. `/colorize`, `/audit`, `/
 
 ## Testing LLM prompts before shipping (PromptFoo)
 
-Only relevant if your app makes LLM calls. Edit `configs/promptfoo/eval-config.yaml` with your actual prompts, then run evals to catch regressions or red-team scans to find security issues.
+Only relevant if your app makes LLM calls. Edit `configs/promptfoo/eval-config.yaml` with your actual prompts, then run evals to catch regressions. Red-team scans run via `./scripts/redteam.sh`.
 
-To use Ollama as the judge (free, no API key needed), set this in the config:
+To use Ollama as the judge (no API key needed), set this in the config:
 
 ```yaml
 defaultTest:
   options:
-    provider: ollama:chat:llama3.1:8b
+    provider: ollama:chat:llama3.2
 ```
 
 ## When to use MiniFish
@@ -63,7 +63,7 @@ Run it from the MiniFish tab in the dashboard, or via CLI: `python minifish/mini
 
 ## Customizing CLAUDE.md for a project
 
-When applying AI Forge to a project with `./scripts/new-project.sh`, customize the generated `CLAUDE.md` with your project-specific details. The more specific it is, the better every AI interaction becomes:
+When applying AI Dev Utility to a project with `./scripts/new-project.sh`, customize the generated `CLAUDE.md` with your project-specific details. The more specific it is, the better every AI interaction becomes:
 
 ```markdown
 ## What this project is
@@ -87,5 +87,5 @@ Accent color: electric blue #0066FF.
 | Database | Supabase (free tier) |
 | Auth | Supabase Auth (free tier) |
 | Hosting | Vercel (free tier) |
-| AI in your app | Claude Haiku or Ollama (free) |
-| Local LLM | Ollama with llama3.1:8b |
+| AI in your app | Claude Haiku (paid) or Ollama (local) |
+| Local LLM | Ollama with llama3.2 |

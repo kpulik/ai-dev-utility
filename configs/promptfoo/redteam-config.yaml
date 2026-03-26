@@ -1,12 +1,12 @@
-# AI Forge - Red Team Security Scan
+# AI Dev Utility - Red Team Security Scan
 # Run: ./scripts/redteam.sh
 # View: promptfoo view
 
-description: "AI Forge security red-team scan"
+description: "AI Dev Utility security red-team scan"
 
 targets:
   # Update the model name to match what you have: run `ollama list` to see available models
-  - id: ollama:chat:llama3.1:8b
+  - id: ollama:chat:llama3.2
     label: "My App (local)"
 
 redteam:
