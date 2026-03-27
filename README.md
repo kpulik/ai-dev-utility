@@ -144,6 +144,7 @@ ai-dev-utility/
 ├── setup.sh                          # One-command install
 ├── CLAUDE.md                         # Source for global ~/.claude/CLAUDE.md
 ├── LICENSE
+├── THIRD_PARTY_NOTICES.md            # Third-party attribution and license notices
 ├── minifish/
 │   ├── minifish.py                   # CLI prediction engine
 │   ├── gui.py                        # GUI helper for the dashboard
