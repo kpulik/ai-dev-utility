@@ -89,3 +89,8 @@ Accent color: electric blue #0066FF.
 | Hosting | Vercel (free tier) |
 | AI in your app | Claude Haiku (paid) or Ollama (local) |
 | Local LLM | Ollama with llama3.2 |
+
+## Licensing and notices
+
+- Project license: MIT (see [LICENSE](../LICENSE)).
+- Third-party notices and attribution: see [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).

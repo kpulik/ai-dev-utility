@@ -195,6 +195,8 @@ Choose to remove everything or select individual components. If you installed th
 
 MIT. Each bundled tool retains its own license:
 
+See `THIRD_PARTY_NOTICES.md` for attribution details.
+
 - The Agency: MIT
 - Impeccable: Apache 2.0
 - PromptFoo: MIT
